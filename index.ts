@@ -5,6 +5,8 @@ import * as THREE from 'three';
  */
 const scene = new THREE.Scene();
 /**
+ * https://threejs.org/docs/index.html#api/en/cameras/PerspectiveCamera
+ * The type of camera is good for 3D view
  * The Point of View, the idea is that the scene is being recorded via a camera, and everything we see is what is being captured by the camera
  * * FOV (75 degrees): The section that will be seen out of the 360 degrees
  * * Aspect ratio: It's usually best to use the ratio of the screen ie. width/height
@@ -32,31 +34,41 @@ renderer.setSize(window.innerWidth, window.innerHeight);
  */
 document.body.appendChild(renderer.domElement);
 
+const material = new THREE.LineBasicMaterial({ color: 0x0000ff });
+
 /**
- * Create an shape, this time a box
- * https://threejs.org/docs/#api/en/geometries/BoxGeometry
+ * We are creating 4 points
  */
-const geometry = new THREE.BoxGeometry(2, 1, 1.5);
+const points = [];
+points.push(new THREE.Vector3(-10, 0, 0)); // Starting point
+points.push(new THREE.Vector3(0, 0, 0));
+points.push(new THREE.Vector3(0, 10, 0));
+points.push(new THREE.Vector3(-10, 10, 0)); // Ending point
+// points.push(new THREE.Vector3(-10, 0, 0));
 /**
- * Create the skin of that object, something green
- * https://threejs.org/docs/#api/en/materials/MeshBasicMaterial
+ * We could create a rectangle by adding one more point, the same as starting point
  */
-const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-/**
- * Create an object from the shape and skin, this time a green box
- */
-const cube = new THREE.Mesh(geometry, material);
+
+const geometry = new THREE.BufferGeometry().setFromPoints(points);
+
+const line = new THREE.Line(geometry, material);
 /**
  * Add it to your scene
  */
-scene.add(cube);
+scene.add(line);
 
 /**
  * Whenever we create or add stuff, the location is at the same place
  * Which means our cube and our camera an inside each other
  * In order to view the object (cube), we need to shift back a little bit
+ * Another way to write this is: camera.position.set( 0, 0, 5 );
+ * Note, if it was OrthographicCamera, z index will not work
+ * OrthographicCamera is good for 2D where regardless of the distance between camera, the size is the same
+ * https://threejs.org/docs/#api/en/cameras/OrthographicCamera
  */
-camera.position.z = 5;
+camera.position.z = 20;
+
+camera.lookAt(0, 1, 0);
 
 function animate() {
   // A better version of setInterval, made specific for these types of animation
@@ -65,8 +77,9 @@ function animate() {
   /**
    * Rotate slightly
    */
-  cube.rotation.x += 0.01;
-  cube.rotation.y += 0.01;
+  line.rotation.x += 0.01;
+  line.rotation.y += 0.01;
+  line.rotation.z += 0.01;
 
   /**
    * Rerender the new update (rotated cube)
